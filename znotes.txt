@@ -1,0 +1,2 @@
+use getServerSession for serverside pages
+use useSession for serverside pages
