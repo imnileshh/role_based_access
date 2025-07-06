@@ -42,15 +42,11 @@ export const options = {
             profile(profile) {
                 console.log('github Profile:', profile);
 
-                let userrole = 'user';
-                if (profile?.email === 'nilesh.213779101@vcet.edu.in') {
-                    userrole = 'admin';
-                }
                 return {
                     id: profile.id.toString(),
                     name: profile.name?.trim() || 'unknown user',
                     email: profile.email,
-                    role: userrole || 'user',
+                    role: 'user',
                 };
             },
             clientId: process.env.GITHUB_ID,
@@ -69,14 +65,10 @@ export const options = {
                 if (!profile?.email) return false;
                 const userExist = await User.findOne({ email: profile.email });
                 if (!userExist) {
-                    let userrole = 'user';
-                    if (profile.email === 'yadavnil2004@gmail.com') {
-                        userrole = 'admin';
-                    }
-                    const newUser = await User.create({
+                    await User.create({
                         email: profile.email,
                         name: profile.name?.trim() || 'Unknown User',
-                        role: userrole || 'user',
+                        role: 'user',
                     });
 
                     console.log(`New user created: ${profile.email}`);
@@ -87,8 +79,14 @@ export const options = {
         },
 
         async jwt({ token, user }) {
-            if (user) {
-                token.role = user.role || 'user';
+            await dbConnect();
+
+            // Always get fresh user data from DB by email
+            const dbUser = await User.findOne({ email: token.email?.toLowerCase() });
+            if (dbUser) {
+                token.role = dbUser.role;
+                token.name = dbUser.name;
+                token.email = dbUser.email;
             }
             return token;
         },

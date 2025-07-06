@@ -1,18 +1,37 @@
 'use client';
 import { useSession } from 'next-auth/react';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-function SuperAdmin() {
+export default function SuperAdmin() {
     const { data: session, status } = useSession();
-    if (session?.user?.email !== 'nilesh.213779101@vcet.edu.in') {
-        redirect('/restricted');
+    const router = useRouter();
+    const [isAuthorized, setIsAuthorized] = useState(false);
+
+    useEffect(() => {
+        if (status === 'loading') return;
+
+        const email = session?.user?.email;
+        const role = session?.user?.role;
+
+        if (email !== 'nilesh.213779101@vcet.edu.in' || role !== 'superadmin') {
+            router.replace('/restricted');
+        } else {
+            setIsAuthorized(true);
+        }
+    }, [session, status, router]);
+
+    if (status === 'loading' || !isAuthorized) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <p className="text-white text-lg">Checking access...</p>
+            </div>
+        );
     }
 
     return (
         <div>
-            <h1 className="text-4xl text-white">This is Super Admin page</h1>
+            {isAuthorized && <h1 className="text-4xl text-white">This is Super Admin page</h1>}
         </div>
     );
 }
-
-export default SuperAdmin;

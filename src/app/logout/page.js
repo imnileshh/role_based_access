@@ -11,20 +11,13 @@ export default function LogoutButton() {
     const handleLogout = async () => {
         setLoading(true);
         try {
-            const res = await fetch('/api/logout', {
-                method: 'POST',
+            await signOut({
+                redirect: true,
+                callbackUrl: '/',
             });
-
-            const data = await res.json();
-            if (res.ok) {
-                alert(data.message || 'Logged out');
-                router.push('/');
-            } else {
-                alert(data.error || 'Logout failed');
-            }
         } catch (error) {
             console.error('Logout error:', error);
-            alert('Network error during logout');
+            alert('Something went wrong during logout');
         } finally {
             setLoading(false);
         }
@@ -32,8 +25,9 @@ export default function LogoutButton() {
 
     return (
         <button
-            onClick={() => signOut}
-            className="group flex items-center justify-start w-11 h-11 bg-red-600 rounded-full cursor-pointer relative overflow-hidden transition-all duration-200 shadow-lg hover:w-32 hover:rounded-lg active:translate-x-1 active:translate-y-1"
+            onClick={handleLogout}
+            disabled={loading}
+            className="group flex items-center justify-start w-11 h-11 bg-red-600 rounded-full cursor-pointer relative overflow-hidden transition-all duration-200 shadow-lg hover:w-32 hover:rounded-lg active:translate-x-1 active:translate-y-1 disabled:opacity-60 disabled:cursor-not-allowed"
         >
             <div className="flex items-center justify-center w-full transition-all duration-300 group-hover:justify-start group-hover:px-3">
                 <svg className="w-4 h-4" viewBox="0 0 512 512" fill="white">
