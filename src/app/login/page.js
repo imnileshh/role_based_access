@@ -51,13 +51,13 @@ export default function LoginUser() {
                 setGlobalError('Invalid credentials');
             } else {
                 const session = await getSession();
+
                 const email = session?.user?.email;
 
                 // Role-based redirect
                 if (email === 'yadavnil2004@gmail.com') {
                     router.push('/admin');
                 } else if (email === 'nilesh.213779101@vcet.edu.in') {
-                    0;
                     router.push('/superadmin');
                 } else {
                     router.push('/');

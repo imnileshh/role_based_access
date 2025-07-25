@@ -5,8 +5,12 @@ import User from '../../../../../models/user';
 import dbConnect from '../../../../lib/dbconnect';
 
 export const options = {
+    session: {
+        strategy: 'jwt',
+        
+    },
     // adapter:MongoDBAdapter(clientPromise),
-    secrets: process.env.NEXTAUTH_SECRET,
+    secret: process.env.NEXTAUTH_SECRET,
     providers: [
         CredentialsProvider({
             name: 'credentials',
@@ -21,12 +25,12 @@ export const options = {
 
                 const findUser = await User.findOne({ email: email });
                 if (!findUser) {
-                    return null;
+                    throw new Error('No user found with this email');
                 }
 
                 const isPasswordValid = await bcrypt.compare(password, findUser.password);
                 if (!isPasswordValid) {
-                    return null;
+                    throw new Error('Incorrect password');
                 }
 
                 return {
@@ -84,15 +88,18 @@ export const options = {
             // Always get fresh user data from DB by email
             const dbUser = await User.findOne({ email: token.email?.toLowerCase() });
             if (dbUser) {
+                token.id = dbUser._id.toString();
                 token.role = dbUser.role;
                 token.name = dbUser.name;
                 token.email = dbUser.email;
             }
+
             return token;
         },
         async session({ session, token }) {
             if (session?.user) {
                 session.user.role = token.role || 'user';
+                session.user.id = token.id;
             }
             return session;
         },

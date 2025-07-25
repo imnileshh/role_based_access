@@ -1,10 +1,10 @@
 'use client';
 
+import { Menu, X } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
 import LogoutButton from '../logout/page';
 import ButtonComponent from './button';
 
@@ -87,6 +87,7 @@ const Navbar = () => {
                     <div className="hidden md:flex items-center space-x-8">
                         <NavLink href="/">Home</NavLink>
                         <NavLink href="/about">About</NavLink>
+                        <NavLink href="/tasks">Tasks</NavLink>
                         {isAdmin && <NavLink href="/admin">Admin</NavLink>}
                         {isSuperAdmin && <NavLink href="/superadmin">SuperAdmin</NavLink>}
                     </div>
@@ -181,6 +182,13 @@ const Navbar = () => {
                                 SuperAdmin
                             </NavLink>
                         )}
+                        <NavLink
+                            href="/tasks"
+                            className="block px-3 py-2 text-base font-medium"
+                            onClick={closeMobileMenu}
+                        >
+                            Tasks
+                        </NavLink>
                     </div>
 
                     {/* Mobile Auth Section */}

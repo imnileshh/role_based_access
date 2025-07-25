@@ -1,0 +1,247 @@
+'use client';
+import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
+import { useEffect, useState } from 'react';
+
+export default function TaskCard({ tasks }) {
+    const [tasksByStatus, setTasksByStatus] = useState({
+        pending: [],
+        'in progress': [],
+        completed: [],
+    });
+    // const [status, setStatus] = useState(task.status || 'pending');
+    useEffect(() => {
+        const grouped = {
+            pending: [],
+            'in progress': [],
+            completed: [],
+        };
+
+        tasks.forEach(task => {
+            grouped[task.status || 'pending'].push(task);
+        });
+        setTasksByStatus(grouped);
+    }, [tasks]);
+
+    const handleDragDrop = async result => {
+        const { source, destination, draggableId } = result;
+
+        if (!destination) return;
+
+        const sourceList = Array.from(tasksByStatus[source.droppableId]);
+        const task = sourceList[source.index];
+
+        if (source.droppableId === destination.droppableId) {
+            sourceList.splice(source.index, 1);
+            sourceList.splice(destination.index, 0, task);
+
+            setTasksByStatus(prev => ({
+                ...prev,
+                [source.droppableId]: sourceList,
+            }));
+            return;
+        }
+
+        const destList = Array.from(tasksByStatus[destination.droppableId]);
+        const updatedTask = { ...task, status: destination.droppableId };
+
+        sourceList.splice(source.index, 1);
+        destList.splice(destination.index, 0, updatedTask);
+
+        setTasksByStatus(prev => ({
+            ...prev,
+            [source.droppableId]: sourceList,
+            [destination.droppableId]: destList,
+        }));
+
+        // console.log(result);
+
+        // Update in DB
+        try {
+            await fetch(`/api/tasks/${draggableId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: destination.droppableId }),
+            });
+        } catch (err) {
+            console.error('Failed to update task status:', err);
+        }
+    };
+
+    // const updateStatus = async newStatus => {
+    //     setLoading(true);
+    //     try {
+    //         const res = await fetch(`/api/tasks/${task._id}`, {
+    //             method: 'PATCH',
+    //             headers: { 'Content-Type': 'application/json' },
+    //             body: JSON.stringify({ status: newStatus }),
+    //         });
+    //         if (res.ok) {
+    //             setStatus(newStatus);
+    //         } else {
+    //             const data = await res.json();
+    //             alert(data.error || 'Failed to update task');
+    //         }
+    //     } catch (err) {
+    //         alert(err.message);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
+    return (
+        <DragDropContext onDragEnd={handleDragDrop}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {['pending', 'in progress', 'completed'].map(status => (
+                    <Droppable droppableId={status} key={status}>
+                        {(provided, snapshot) => (
+                            <div
+                                ref={provided.innerRef}
+                                {...provided.droppableProps}
+                                className={`p-4 rounded-lg min-h-[350px] bg-gray-200 shadow-md transition ${
+                                    snapshot.isDraggingOver
+                                        ? ' border-2 border-blue-300'
+                                        : 'hover:bg-gray-300'
+                                }`}
+                            >
+                                <h3 className="text-xl font-bold capitalize mb-4 text-blue-700">
+                                    {status}
+                                </h3>
+
+                                {tasksByStatus[status]?.length ? (
+                                    tasksByStatus[status].map((task, index) => (
+                                        <Draggable
+                                            key={task._id}
+                                            draggableId={task._id}
+                                            index={index}
+                                        >
+                                            {(provided, snapshot) => (
+                                                <div
+                                                    ref={provided.innerRef}
+                                                    {...provided.draggableProps}
+                                                    {...provided.dragHandleProps}
+                                                    className={`relative p-4 rounded-lg shadow-md bg-white border-l-4 mb-3  select-text ${
+                                                        status === 'pending'
+                                                            ? 'border-yellow-500'
+                                                            : status === 'in progress'
+                                                            ? 'border-blue-500'
+                                                            : 'border-green-500'
+                                                    } transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${
+                                                        snapshot.isDragging
+                                                            ? 'scale-105 bg-blue-50'
+                                                            : ''
+                                                    }`}
+                                                >
+                                                    {/* Status Badge */}
+                                                    <div className="absolute top-2 right-2 px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700 border border-gray-300">
+                                                        {status}
+                                                    </div>
+
+                                                    <h4 className="text-lg font-semibold text-gray-800">
+                                                        {task.title}
+                                                    </h4>
+                                                    <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                                                        {task.description}
+                                                    </p>
+
+                                                    <div className="mt-3 text-xs text-gray-500 space-y-1">
+                                                        <p>
+                                                            👤{' '}
+                                                            <span className="font-medium">
+                                                                Due Date:
+                                                            </span>{' '}
+                                                            {new Date(
+                                                                task.dueDate
+                                                            ).toLocaleDateString()}
+                                                        </p>
+                                                        <p>
+                                                            👤{' '}
+                                                            <span className="font-medium">
+                                                                Assigned to:
+                                                            </span>{' '}
+                                                            {task.assignedTo?.name || '—'}
+                                                        </p>
+                                                        <p>
+                                                            🛠️{' '}
+                                                            <span className="font-medium">
+                                                                Created by:
+                                                            </span>{' '}
+                                                            {task.createdBy?.name || '—'}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </Draggable>
+                                    ))
+                                ) : (
+                                    <p className="text-gray-400 italic">No tasks here</p>
+                                )}
+                                {provided.placeholder}
+                            </div>
+                        )}
+                    </Droppable>
+                ))}
+            </div>
+        </DragDropContext>
+        // <DragDropContext onDragEnd={handleDragDrop}>
+        //     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        //         {['pending', 'in progress', 'completed'].map(status => (
+        //             <Droppable key={status} droppableId={status}>
+        //                 {provided => (
+        //                     <div
+        //                         ref={provided.innerRef}
+        //                         {...provided.droppableProps}
+        //                         className="bg-white rounded p-4 shadow h-full min-h-[300px]"
+        //                     >
+        //                         <h3 className="text-xl font-bold capitalize mb-2">{status}</h3>
+
+        //                         {tasksByStatus[status].map((task, index) => (
+        //                             <Draggable key={task._id} draggableId={task._id} index={index}>
+        //                                 {provided => (
+        //                                     <div
+        //                                         ref={provided.innerRef}
+        //                                         {...provided.draggableProps}
+        //                                         {...provided.dragHandleProps}
+        //                                         className="border p-3 rounded bg-gray-100 mb-2"
+        //                                     >
+        //                                         <h4 className="font-semibold text-lg">
+        //                                             {task.title}
+        //                                         </h4>
+        //                                         <p className="text-sm">{task.description}</p>
+        //                                         <p className="text-xs text-gray-500">
+        //                                             Assigned to: {task.assignedTo?.name}
+        //                                         </p>
+        //                                     </div>
+        //                                 )}
+        //                             </Draggable>
+        //                         ))}
+        //                         {provided.placeholder}
+        //                     </div>
+        //                 )}
+        //             </Droppable>
+        //         ))}
+        //     </div>
+        // </DragDropContext>
+        // <div className="border p-3 rounded shadow bg-gray-50 lg:w-[70%]">
+        //     <h3 className="font-semibold text-lg">{task.title}</h3>
+        //     <p className="text-sm">{task.description}</p>
+        //     <p className="text-sm text-gray-600">Assigned to: {task.assignedTo?.name}</p>
+        //     <p className="text-sm text-gray-600">Created by: {task.createdBy?.name || 'Unknown'}</p>
+        //     <p className="text-sm text-gray-600">Project: {task.project?.name || 'Unknown'}</p>
+        //     <p className="text-sm mt-1">Status: {status}</p>
+        //     <div className="flex gap-2 mt-2">
+        //         {['pending', 'in progress', 'completed'].map(s => (
+        //             <button
+        //                 key={s}
+        //                 disabled={loading}
+        //                 onClick={() => updateStatus(s)}
+        //                 className={`px-2 py-1 rounded text-sm ${
+        //                     status === s ? 'bg-blue-600 text-white' : 'bg-gray-200'
+        //                 }`}
+        //             >
+        //                 {s}
+        //             </button>
+        //         ))}
+        //     </div>
+        // </div>
+    );
+}

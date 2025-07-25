@@ -34,7 +34,7 @@ export async function POST(req) {
             {
                 tokenData,
             },
-            process.env.JWT_SECRET,
+            process.env.NEXTAUTH_SECRET,
             { expiresIn: '1d' }
         );
         console.log('login', token);
