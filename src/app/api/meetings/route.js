@@ -1,7 +1,7 @@
 import Meeting from '../../../../models/meeting';
 import User from '../../../../models/user';
-import dbConnect from '../../../lib/dbconnect';
-import { getUserFromRequest } from '../../../lib/getUserFromRequest';
+import dbConnect from '../../../lib/dbconnect.js';
+import { getUserFromRequest } from '../../../lib/getUserFromRequest.js';
 
 export async function GET(req) {
     await dbConnect();
