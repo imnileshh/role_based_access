@@ -1,6 +1,6 @@
 import User from '../../../../models/user';
-import dbConnect from '../../../lib/dbconnect';
-import { getUserFromRequest } from '../../../lib/getUserFromRequest';
+import { dbConnect } from '../../components/lib/dbconnect';
+import { getUserFromRequest } from '../../components/lib/getUserFromRequest';
 
 export async function GET(req) {
     await dbConnect();

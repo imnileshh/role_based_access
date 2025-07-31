@@ -1,6 +1,6 @@
 import Project from '../../../../models/projects';
-import dbConnect from '../../../lib/dbconnect';
-import { getUserFromRequest } from '../../../lib/getUserFromRequest';
+import { dbConnect } from '../../components/lib/dbconnect';
+import { getUserFromRequest } from '../../components/lib/getUserFromRequest';
 
 export async function POST(req) {
     await dbConnect();

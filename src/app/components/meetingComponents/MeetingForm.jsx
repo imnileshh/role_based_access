@@ -1,7 +1,10 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Select from 'react-select';
+import useMeetingStore from '../../store/meetingStore';
 export default function MeetingForm({ projectId, onClose }) {
+    const { isMeetingFormOpen, closeMeetingForm, editingMeeting } = useMeetingStore();
+
     const [form, setForm] = useState({
         title: '',
         description: '',
@@ -9,6 +12,28 @@ export default function MeetingForm({ projectId, onClose }) {
         meetingLink: '',
         participants: [],
     });
+
+    useEffect(() => {
+        if (editingMeeting) {
+            const dt = new Date(editingMeeting.date);
+
+            const localDatetime = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000)
+                .toISOString()
+                .slice(0, 16); // format: 'YYYY-MM-DDTHH:mm'
+            console.log(localDatetime);
+            setForm({
+                title: editingMeeting.title,
+                description: editingMeeting.description,
+                date: localDatetime, // format for input[type=datetime-local]
+                meetingLink: editingMeeting.meetingLink,
+                participants:
+                    editingMeeting.participants?.map(p => ({
+                        label: p.name,
+                        value: p.name,
+                    })) || [],
+            });
+        }
+    }, [editingMeeting]);
 
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -40,28 +65,36 @@ export default function MeetingForm({ projectId, onClose }) {
     const handleParticipantsChange = selectedOptions => {
         setForm(prev => ({
             ...prev,
-            participants: selectedOptions.map(opt => opt.value),
+            participants: selectedOptions.map(opt => ({
+                label: opt.label,
+                value: opt.value,
+            })),
         }));
     };
 
     const handleSubmit = async e => {
         e.preventDefault();
         setLoading(true);
+
+        const method = editingMeeting ? 'PATCH' : 'POST';
+        const url = editingMeeting ? `/api/meetings/${editingMeeting._id}` : `/api/meetings`;
+
         try {
-            const res = await fetch('/api/meetings', {
-                method: 'POST',
+            const res = await fetch(url, {
+                method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ...form, project: projectId }),
             });
+
             const data = await res.json();
             if (res.ok) {
-                alert('Meeting scheduled successfully!');
-                onClose(); // close modal or form
+                alert(editingMeeting ? 'Meeting updated!' : 'Meeting scheduled!');
+                closeMeetingForm();
             } else {
-                alert(data.error || 'Failed to schedule meeting');
+                alert(data.error || 'Failed to save meeting');
             }
         } catch (err) {
-            alert('Something went wrong: ' + err.message);
+            alert('Error: ' + err.message);
         } finally {
             setLoading(false);
         }
@@ -73,7 +106,9 @@ export default function MeetingForm({ projectId, onClose }) {
                 onSubmit={handleSubmit}
                 className="bg-white w-full max-w-md p-6 rounded shadow-lg space-y-4"
             >
-                <h2 className="text-xl font-bold text-gray-800">📅 Schedule Meeting</h2>
+                <h2 className="text-xl font-bold text-gray-800">
+                    📅 {editingMeeting ? 'Editing Meeting' : 'Schedule Meeting'}
+                </h2>
 
                 <input
                     name="title"
@@ -118,11 +153,12 @@ export default function MeetingForm({ projectId, onClose }) {
                     isSearchable
                     className="react-select-container border rounded"
                     classNamePrefix="react-select"
+                    value={form.participants}
                 />
                 <div className="flex justify-between mt-4">
                     <button
                         type="button"
-                        onClick={onClose}
+                        onClick={() => closeMeetingForm()}
                         className="px-4 py-2 rounded bg-red-400 text-white hover:bg-gray-500"
                     >
                         Cancel

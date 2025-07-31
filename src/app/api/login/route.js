@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { NextResponse } from 'next/server';
 import User from '../../../../models/user';
-import dbConnect from '../../../lib/dbconnect';
+import { dbConnect } from '../../components/lib/dbconnect';
 
 export async function POST(req) {
     try {

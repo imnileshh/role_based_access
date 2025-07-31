@@ -2,14 +2,12 @@ import bcrypt from 'bcryptjs';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { default as GitHubProvider } from 'next-auth/providers/github';
 import User from '../../../../../models/user';
-import dbConnect from '../../../../lib/dbconnect';
+import { dbConnect } from '../../../components/lib/dbconnect';
 
 export const options = {
     session: {
         strategy: 'jwt',
-        
     },
-    // adapter:MongoDBAdapter(clientPromise),
     secret: process.env.NEXTAUTH_SECRET,
     providers: [
         CredentialsProvider({

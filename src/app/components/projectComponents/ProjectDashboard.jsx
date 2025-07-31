@@ -1,5 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
+import useMeetingStore from '../../store/meetingStore';
+import useTaskStore from '../../store/taskStore';
 import MeetingForm from '../meetingComponents/MeetingForm';
 import MeetingList from '../meetingComponents/MeetingList';
 import CreateTaskForm from '../taskComponents/CreateTaskForm';
@@ -7,11 +9,13 @@ import TaskList from '../taskComponents/TaskList';
 export default function ProjectDashboardPage() {
     const [projects, setProjects] = useState([]);
     const [selectedProjectId, setSelectedProjectId] = useState(null);
-    const [openTaskForm, setOpenTaskForm] = useState(false);
-    const [openMeetingForm, setOpenMeetingForm] = useState(false);
+    // const [openTaskForm, setOpenTaskForm] = useState(false);
     const [showAddForm, setShowAddForm] = useState(false);
     const [projectForm, setProjectForm] = useState({ name: '', description: '' });
     const [activeTab, setActiveTab] = useState('tasks'); // 'tasks' | 'meetings'
+
+    const { isMeetingFormOpen, closeMeetingForm, openMeetingForm } = useMeetingStore();
+    const { isTaskFormOpen, openTaskForm, closeTaskForm } = useTaskStore();
 
     useEffect(() => {
         async function fetchProjects() {
@@ -96,7 +100,7 @@ export default function ProjectDashboardPage() {
                         >
                             <span>{project.name}</span>
                             <button
-                                onClick={() => setOpenTaskForm(true)}
+                                onClick={() => openTaskForm()}
                                 className="bg-gray-400 group-hover:bg-gray-600 text-white rounded-full w-6 h-6 flex items-center justify-center"
                             >
                                 +
@@ -106,15 +110,15 @@ export default function ProjectDashboardPage() {
                 </ul>
             </div>
 
-            {openTaskForm && (
+            {isTaskFormOpen && (
                 <CreateTaskForm
                     projectId={selectedProjectId}
-                    isOpen={openTaskForm}
-                    onClose={() => setOpenTaskForm(false)}
+                    isOpen={isTaskFormOpen}
+                    onClose={() => closeTaskForm()}
                 />
             )}
 
-            <div className="w-[75%] p-4 space-y-4">
+            <div className="w-100 sm:w-[75%] p-4 space-y-4">
                 {/* Tabs */}
                 <div className="flex gap-4 border-b">
                     <button
@@ -141,14 +145,14 @@ export default function ProjectDashboardPage() {
                 <div>
                     {activeTab === 'tasks' ? (
                         <button
-                            onClick={() => setOpenTaskForm(true)}
+                            onClick={() => openTaskForm()}
                             className="bg-blue-600 text-white px-4 py-2 rounded"
                         >
                             + Add Task
                         </button>
                     ) : (
                         <button
-                            onClick={() => setOpenMeetingForm(true)}
+                            onClick={() => openMeetingForm()}
                             className="bg-green-600 text-white px-4 py-2 rounded"
                         >
                             + Schedule Meeting
@@ -157,16 +161,16 @@ export default function ProjectDashboardPage() {
                 </div>
 
                 {/* Forms */}
-                {openTaskForm && (
-                    <CreateTaskForm
-                        projectId={selectedProjectId}
-                        onClose={() => setOpenTaskForm(false)}
-                    />
+                {isTaskFormOpen && (
+                    <CreateTaskForm projectId={selectedProjectId} onClose={() => closeTaskForm()} />
                 )}
-                {openMeetingForm && (
+                {isMeetingFormOpen && (
                     <MeetingForm
                         projectId={selectedProjectId}
-                        onClose={() => setOpenMeetingForm(false)}
+                        onClose={() =>
+                            // setOpenMeetingForm(false)
+                            closeMeetingForm()
+                        }
                     />
                 )}
 
@@ -179,131 +183,3 @@ export default function ProjectDashboardPage() {
         </div>
     );
 }
-
-// 'use client';
-
-// import { useEffect, useState } from 'react';
-// import CreateTaskForm from '../taskComponents/CreateTaskForm';
-// import TaskList from '../taskComponents/TaskList';
-
-// export default function ProjectDashboardPage() {
-//     const [projects, setProjects] = useState([]);
-//     const [selectedProjectId, setSelectedProjectId] = useState(null);
-//     const [openTaskForm, setOpenTaskForm] = useState(false);
-//     const [showAddForm, setShowAddForm] = useState(false);
-//     const [projectForm, setProjectForm] = useState({ name: '', description: '' });
-
-//     // Fetch all projects
-//     useEffect(() => {
-//         async function fetchProjects() {
-//             const res = await fetch('/api/projects');
-//             const data = await res.json();
-//             if (res.ok) {
-//                 setProjects(data.projects);
-//                 setSelectedProjectId(data.projects[0]._id);
-//             }
-//         }
-//         fetchProjects();
-//     }, []);
-
-//     const handleProjectClick = id => setSelectedProjectId(id);
-
-//     const handleProjectFormChange = e => {
-//         setProjectForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
-//     };
-
-//     const handleAddProject = async e => {
-//         e.preventDefault();
-//         const res = await fetch('/api/projects', {
-//             method: 'POST',
-//             headers: { 'Content-Type': 'application/json' },
-//             body: JSON.stringify(projectForm),
-//         });
-//         const data = await res.json();
-//         if (res.ok) {
-//             setProjects(prev => [...prev, data.project]);
-//             setProjectForm({ name: '', description: '' });
-//             setShowAddForm(false);
-//         } else {
-//             alert(data.error || 'Failed to add project');
-//         }
-//     };
-//     const handleOpenAddTaskForm = () => {
-//         setOpenTaskForm(prev => !prev);
-//         // alert(`modal Opened for ${selectedProjectId}`);
-//     };
-
-//     return (
-//         <div className="flex min-h-screen gap-6">
-//             <div className="w-full md:w-[20%] bg-gray-50 border-r p-4 min-h-screen">
-//                 <div className="flex justify-between items-center mb-4">
-//                     <h2 className="text-xl font-bold text-gray-800">📂 Projects</h2>
-//                     <button
-//                         onClick={() => setShowAddForm(!showAddForm)}
-//                         className="text-sm text-white bg-blue-500 px-3 py-1 rounded"
-//                     >
-//                         {showAddForm ? 'Close' : 'Add'}
-//                     </button>
-//                 </div>
-
-//                 {showAddForm && (
-//                     <form onSubmit={handleAddProject} className="space-y-3 mb-6">
-//                         <input
-//                             name="name"
-//                             placeholder="Name"
-//                             value={projectForm.name}
-//                             onChange={handleProjectFormChange}
-//                             className="w-full px-3 py-2 border rounded"
-//                             required
-//                         />
-//                         <textarea
-//                             name="description"
-//                             placeholder="Description"
-//                             value={projectForm.description}
-//                             onChange={handleProjectFormChange}
-//                             className="w-full px-3 py-2 border rounded"
-//                         />
-//                         <button className="w-full py-2 bg-green-600 text-white rounded">
-//                             Create
-//                         </button>
-//                     </form>
-//                 )}
-
-//                 <ul className="space-y-2">
-//                     {projects.map(project => (
-//                         <li
-//                             key={project._id}
-//                             onClick={() => handleProjectClick(project._id)}
-//                             className={`group cursor-pointer p-2 rounded flex justify-between items-center ${
-//                                 selectedProjectId === project._id
-//                                     ? 'bg-blue-100 font-bold'
-//                                     : 'hover:bg-gray-200'
-//                             }`}
-//                         >
-//                             <span>{project.name}</span>
-//                             <button
-//                                 onClick={handleOpenAddTaskForm}
-//                                 className="bg-gray-400 group-hover:bg-gray-600 text-white rounded-full w-6 h-6 flex items-center justify-center"
-//                             >
-//                                 +
-//                             </button>
-//                         </li>
-//                     ))}
-//                 </ul>
-//             </div>
-
-//             {openTaskForm && (
-//                 <>
-//                     <CreateTaskForm
-//                         projectId={selectedProjectId}
-//                         isOpen={openTaskForm}
-//                         onClose={() => setOpenTaskForm(false)}
-//                     />
-//                 </>
-//             )}
-//             <div className="w-full md:w-[75%]">
-//                 <TaskList projectId={selectedProjectId} />
-//             </div>
-//         </div>
-//     );
-// }

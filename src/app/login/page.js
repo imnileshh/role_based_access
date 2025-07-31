@@ -4,7 +4,7 @@ import { getSession, signIn } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { cn } from '../../lib/utils';
+import { cn } from '../components/lib/utils';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 

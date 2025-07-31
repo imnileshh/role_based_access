@@ -45,32 +45,15 @@ export default function MeetingList({ projectId }) {
                 ) : (
                     <div>
                         {meetings.map(meeting => (
-                            <MeetingCard key={meeting._id} meeting={meeting} />
+                            <MeetingCard
+                                key={meeting._id}
+                                meeting={meeting}
+                            />
                         ))}
                     </div>
-                    // <div className="flex flex-wrap gap-4">
-                    //     {tasks.map(task => (
-                    //         <TaskCard key={task._id} task={task} />
-                    //     ))}
-                    // </div>
                 )}
             </div>
 
-            {/* <div className="w-full lg:w-1/2 bg-white p-4 mt-6 lg:mt-0 rounded shadow-lg">
-                <h2 className="text-2xl font-bold text-gray-800 mb-4">📌 Tasks I Created</h2>
-
-                {loading ? (
-                    <p className="text-blue-600 font-semibold">Loading tasks...</p>
-                ) : createdTasks.length === 0 ? (
-                    <p className="text-red-500 font-semibold">No tasks created by you.</p>
-                ) : (
-                    <div className="flex flex-wrap gap-4">
-                        {createdTasks.map(task => (
-                            <TaskCard key={task._id} task={task} />
-                        ))}
-                    </div>
-                )}
-            </div> */}
         </div>
     );
 }

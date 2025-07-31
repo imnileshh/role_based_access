@@ -1,7 +1,8 @@
+import { NextResponse } from 'next/server';
 import Meeting from '../../../../models/meeting';
 import User from '../../../../models/user';
-import dbConnect from '../../../lib/dbconnect.js';
-import { getUserFromRequest } from '../../../lib/getUserFromRequest.js';
+import { dbConnect } from '../../components/lib/dbconnect.js';
+import { getUserFromRequest } from '../../components/lib/getUserFromRequest.js';
 
 export async function GET(req) {
     await dbConnect();
@@ -9,7 +10,7 @@ export async function GET(req) {
     const token = await getUserFromRequest(req);
 
     if (!token) {
-        return Response.json({ error: 'Unauthorized' }, { status: 401 });
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const url = new URL(req.url);
     const projectId = url.searchParams.get('projectId');
@@ -20,7 +21,7 @@ export async function GET(req) {
         .populate('createdBy')
         .populate('project');
 
-    return Response.json({ meetings });
+    return NextResponse.json({ meetings });
 }
 
 export async function POST(req) {
@@ -28,7 +29,7 @@ export async function POST(req) {
     const token = await getUserFromRequest(req);
 
     if (!token) {
-        return Response.json({ error: 'Unauthorized' }, { status: 401 });
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { title, description, date, participants, project, meetingLink } = await req.json();
@@ -43,7 +44,7 @@ export async function POST(req) {
     const newMeeting = await Meeting.create({
         title,
         description,
-        date,
+        date: new Date(date),
         meetingLink,
         participants: participantsId,
         project,
@@ -51,7 +52,7 @@ export async function POST(req) {
     });
 
     if (!newMeeting) {
-        return Response.json({ error: 'Failed To Create Meeting' });
+        return NextResponse.json({ error: 'Failed To Create Meeting' });
     }
-    return Response.json({ status: true, newMeeting }, { status: 201 });
+    return NextResponse.json({ status: true, newMeeting }, { status: 201 });
 }

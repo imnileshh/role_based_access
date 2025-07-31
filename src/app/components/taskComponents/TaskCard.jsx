@@ -1,8 +1,12 @@
 'use client';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
+import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
+import useTaskStore from '../../store/taskStore';
 
 export default function TaskCard({ tasks }) {
+    const { data: session } = useSession();
+    const { setEditingTask } = useTaskStore();
     const [tasksByStatus, setTasksByStatus] = useState({
         pending: [],
         'in progress': [],
@@ -53,8 +57,6 @@ export default function TaskCard({ tasks }) {
             [destination.droppableId]: destList,
         }));
 
-        // console.log(result);
-
         // Update in DB
         try {
             await fetch(`/api/tasks/${draggableId}`, {
@@ -64,6 +66,23 @@ export default function TaskCard({ tasks }) {
             });
         } catch (err) {
             console.error('Failed to update task status:', err);
+        }
+    };
+
+    const handleDeleteTask = async id => {
+        if (!confirm('Are You sure you want to delete this task?')) return;
+        try {
+            const res = await fetch(`/api/tasks/${id}`, {
+                method: 'DELETE',
+            });
+            const deleteRes = await res.json();
+            if (res.ok) {
+                alert(`Task with ${id} deleted`);
+            }
+            console.log('deleteRes', deleteRes);
+        } catch (error) {
+            console.error('Failed to delete task:', error);
+            alert('Failed to delete task');
         }
     };
 
@@ -167,6 +186,45 @@ export default function TaskCard({ tasks }) {
                                                             </span>{' '}
                                                             {task.createdBy?.name || '—'}
                                                         </p>
+                                                    </div>
+                                                    <div className="flex flex-row sm:flex-row flex-wrap gap-6">
+                                                        <button
+                                                            className="mt-3 bg-gray-200 text-white px-3 py-1 rounded "
+                                                            onClick={() =>
+                                                                handleDeleteTask(task._id)
+                                                            }
+                                                        >
+                                                            <svg
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                x="0px"
+                                                                y="0px"
+                                                                width="24"
+                                                                height="24"
+                                                                viewBox="0 0 24 24"
+                                                                fill="red"
+                                                            >
+                                                                <path d="M 10.806641 2 C 10.289641 2 9.7956875 2.2043125 9.4296875 2.5703125 L 9 3 L 4 3 A 1.0001 1.0001 0 1 0 4 5 L 20 5 A 1.0001 1.0001 0 1 0 20 3 L 15 3 L 14.570312 2.5703125 C 14.205312 2.2043125 13.710359 2 13.193359 2 L 10.806641 2 z M 4.3652344 7 L 5.8925781 20.263672 C 6.0245781 21.253672 6.877 22 7.875 22 L 16.123047 22 C 17.121047 22 17.974422 21.254859 18.107422 20.255859 L 19.634766 7 L 4.3652344 7 z"></path>
+                                                            </svg>
+                                                        </button>
+                                                        {session?.user.name ===
+                                                            task.createdBy?.name && (
+                                                            <button
+                                                                className="mt-3 bg-gray-200 text-white px-3 py-1 rounded "
+                                                                onClick={() => setEditingTask(task)}
+                                                            >
+                                                                <svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    x="0px"
+                                                                    y="0px"
+                                                                    width="24"
+                                                                    height="24"
+                                                                    viewBox="0 0 24 24"
+                                                                    fill="green"
+                                                                >
+                                                                    <path d="M3 17.25V21h3.75l11.06-11.06-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 0 0 0-1.42l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z" />
+                                                                </svg>
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </div>
                                             )}

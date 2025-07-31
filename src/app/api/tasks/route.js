@@ -1,19 +1,19 @@
 import Task from '../../../../models/task';
 import User from '../../../../models/user';
-import dbConnect from '../../../lib/dbconnect';
-import { getUserFromRequest } from '../../../lib/getUserFromRequest';
+import { dbConnect } from '../../components/lib/dbconnect';
+import { getUserFromRequest } from '../../components/lib/getUserFromRequest';
 export async function POST(req) {
     await dbConnect();
     const token = await getUserFromRequest(req);
     if (!token) {
-        return Response.json({ error: 'Unauthorized' }, { status: 401 });
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const { title, description, dueDate, assignedTo, status, project } = await req.json();
 
     if (!title || !assignedTo) {
         console.log('failed creating Task');
 
-        return Response.json({ error: 'Missing fields' }, { status: 400 });
+        return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
     const assignedUser = await User.findOne({ name: assignedTo });
@@ -31,14 +31,14 @@ export async function POST(req) {
         project,
     });
 
-    return Response.json({ success: true, task: newTask }, { status: 201 });
+    return NextResponse.json({ success: true, task: newTask }, { status: 201 });
 }
 
 export async function GET(req) {
     await dbConnect();
     const token = await getUserFromRequest(req);
     if (!token) {
-        return Response.json({ error: 'Unauthorized' }, { status: 401 });
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     console.log('token is :', token);
     const url = new URL(req.url);
@@ -71,5 +71,5 @@ export async function GET(req) {
     //         .populate('createdBy');
     // }
 
-    return Response.json({ tasks });
+    return NextResponse.json({ tasks });
 }

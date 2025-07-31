@@ -1,7 +1,10 @@
 'use client';
 import { useEffect, useState } from 'react';
+import useTaskStore from '../../store/taskStore';
 
-export default function CreateTaskModal({ projectId, isOpen, onClose }) {
+export default function CreateTaskModal({ projectId }) {
+    const { openTaskForm, setEditingTask, closeTaskForm, isTaskFormOpen, editingTaskData } =
+        useTaskStore();
     const [form, setForm] = useState({
         title: '',
         description: '',
@@ -22,8 +25,21 @@ export default function CreateTaskModal({ projectId, isOpen, onClose }) {
                 setError('Failed to load users');
             }
         }
-        if (isOpen) fetchData();
-    }, [isOpen]);
+        if (isTaskFormOpen) fetchData();
+    }, [isTaskFormOpen]);
+
+    useEffect(() => {
+        if (setEditingTask) {
+            let newDate = new Date(editingTaskData.dueDate).toISOString().split('T')[0];
+
+            setForm({
+                title: editingTaskData.title,
+                description: editingTaskData.description,
+                dueDate: newDate,
+                assignedTo: editingTaskData.assignedTo.name,
+            });
+        }
+    }, [setEditingTask]);
 
     const handleChange = e => {
         setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -38,8 +54,11 @@ export default function CreateTaskModal({ projectId, isOpen, onClose }) {
                 throw new Error('Title and Assigned To are required');
             }
 
-            const res = await fetch('/api/tasks', {
-                method: 'POST',
+            const method = editingTaskData ? 'PATCH' : 'POST';
+            const url = editingTaskData ? `/api/tasks/${editingTaskData._id}` : `/api/tasks`;
+
+            const res = await fetch(url, {
+                method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ...form, status: 'pending', project: projectId }),
             });
@@ -49,7 +68,7 @@ export default function CreateTaskModal({ projectId, isOpen, onClose }) {
 
             alert('✅ Task Created');
             setForm({ title: '', description: '', dueDate: '', assignedTo: '' });
-            onClose();
+            closeTaskForm();
         } catch (err) {
             setError(err.message);
         } finally {
@@ -57,7 +76,7 @@ export default function CreateTaskModal({ projectId, isOpen, onClose }) {
         }
     };
 
-    if (!isOpen) return null;
+    if (!isTaskFormOpen) return null;
 
     return (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
@@ -116,7 +135,7 @@ export default function CreateTaskModal({ projectId, isOpen, onClose }) {
                     <div className="flex justify-between mt-4">
                         <button
                             type="button"
-                            onClick={onClose}
+                            onClick={() => closeTaskForm()}
                             className="px-4 py-2 rounded bg-red-400 text-white hover:bg-gray-500"
                         >
                             Cancel
@@ -126,7 +145,13 @@ export default function CreateTaskModal({ projectId, isOpen, onClose }) {
                             disabled={loading}
                             className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
                         >
-                            {loading ? 'Creating Task...' : 'Create <Task></Task>'}
+                            {editingTaskData
+                                ? loading
+                                    ? 'editing Task'
+                                    : 'Edit Task'
+                                : loading
+                                ? 'Creating Task'
+                                : 'Create Task'}
                         </button>
                     </div>
                 </form>

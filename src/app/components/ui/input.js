@@ -1,6 +1,6 @@
 // Input component extends from shadcnui - https://ui.shadcn.com/docs/components/input
 'use client';
-import { cn } from '@/lib/utils';
+import { cn } from '@/app/components/lib/utils';
 import { motion, useMotionTemplate, useMotionValue } from 'motion/react';
 import * as React from 'react';
 
