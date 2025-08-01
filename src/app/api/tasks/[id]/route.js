@@ -11,10 +11,11 @@ export async function PATCH(req, { params }) {
 
     const { id } = await params;
     const updates = await req.json();
-    console.log('updates', updates);
 
-    const assignedToUser = await User.findOne({ name: updates.assignedTo });
-    updates.assignedTo = assignedToUser._id;
+    if (updates.assignedTo) {
+        const assignedToUser = await User.findOne({ name: updates.assignedTo });
+        updates.assignedTo = assignedToUser._id;
+    }
 
     const task = await Task.findById(id);
     if (!task) {

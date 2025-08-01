@@ -23,10 +23,30 @@ const userSchema = new Schema(
             enum: ['user', 'admin', 'superadmin'],
             default: 'user',
         },
+        leaveStats: {
+            paid: {
+                total: {
+                    type: Number,
+                    default: 20,
+                },
+                used: {
+                    type: Number,
+                    default: 0,
+                },
+            },
+            sick: {
+                total: {
+                    type: Number,
+                    default: 14,
+                },
+                used: {
+                    type: Number,
+                    default: 0,
+                },
+            },
+        },
     },
     { timestamps: true }
 );
 
-const User = mongoose.models.User || mongoose.model('User', userSchema);
-
-export default User;
+export default mongoose.models.User || mongoose.model('User', userSchema);

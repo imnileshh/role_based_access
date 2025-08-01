@@ -88,6 +88,7 @@ const Navbar = () => {
                         <NavLink href="/">Home</NavLink>
                         <NavLink href="/about">About</NavLink>
                         <NavLink href="/tasks">Tasks</NavLink>
+                        <NavLink href='/leave'>Leave</NavLink>
                         {isAdmin && <NavLink href="/admin">Admin</NavLink>}
                         {isSuperAdmin && <NavLink href="/superadmin">SuperAdmin</NavLink>}
                     </div>

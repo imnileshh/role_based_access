@@ -1,9 +1,11 @@
-function AdminPage() {
-    // const session = await getServerSession(options);
-    // // console.log('Your Session is:', session);
-    // if (session?.user?.role !== 'admin') {
-    //     redirect('/restricted');
-    // }
+import { getServerSession } from 'next-auth';
+
+async function AdminPage() {
+    const session = await getServerSession();
+    // console.log('Your Session is:', session);
+    if (session?.user?.role !== 'admin') {
+        redirect('/restricted');
+    }
     return (
         <div className="text-white">
             <h1 className="text-5xl text-white">This IS Admin Page</h1>

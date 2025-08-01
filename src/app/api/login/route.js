@@ -10,7 +10,7 @@ export async function POST(req) {
         const { email, password } = await req.json();
 
         // check if  user exists
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({ email }).select('+password');
         if (!existingUser) {
             return NextResponse.json({ error: 'User Do Not Exists' }, { status: 400 });
         }

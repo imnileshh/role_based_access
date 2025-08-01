@@ -1,3 +1,4 @@
+import { NextResponse } from 'next/server';
 import Task from '../../../../models/task';
 import User from '../../../../models/user';
 import { dbConnect } from '../../components/lib/dbconnect';

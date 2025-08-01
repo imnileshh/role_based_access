@@ -1,12 +1,14 @@
 import bcrypt from 'bcryptjs';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { default as GitHubProvider } from 'next-auth/providers/github';
+import GitHubProvider from 'next-auth/providers/github';
 import User from '../../../../../models/user';
 import { dbConnect } from '../../../components/lib/dbconnect';
 
 export const options = {
     session: {
         strategy: 'jwt',
+        maxAge: 60 * 60 * 12,
+        updateAge: 60 * 60,
     },
     secret: process.env.NEXTAUTH_SECRET,
     providers: [
@@ -19,9 +21,8 @@ export const options = {
             async authorize(credentials, req) {
                 await dbConnect();
 
-                const { email, password } = credentials;
-
-                const findUser = await User.findOne({ email: email });
+                const { email, password } = credentials || {};
+                const findUser = await User.findOne({ email: email }).select('+password');
                 if (!findUser) {
                     throw new Error('No user found with this email');
                 }
@@ -42,8 +43,6 @@ export const options = {
 
         GitHubProvider({
             profile(profile) {
-                console.log('github Profile:', profile);
-
                 return {
                     id: profile.id.toString(),
                     name: profile.name?.trim() || 'unknown user',
@@ -65,7 +64,7 @@ export const options = {
 
             if (account.provider !== 'credentials') {
                 if (!profile?.email) return false;
-                const userExist = await User.findOne({ email: profile.email });
+                const userExist = await User.findOne({ email: profile.email }).select('+password');
                 if (!userExist) {
                     await User.create({
                         email: profile.email,

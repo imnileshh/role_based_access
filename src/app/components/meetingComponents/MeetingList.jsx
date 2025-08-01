@@ -17,7 +17,7 @@ export default function MeetingList({ projectId }) {
             try {
                 const res = await fetch(`/api/meetings?projectId=${projectId}`);
                 const data = await res.json();
-                if (!res.ok) throw new Error('Failed to fetch tasks');
+                if (!res.ok) throw new Error(res.error);
 
                 const fetchedMeetings = data.meetings || [];
                 setMeetings(fetchedMeetings);
@@ -45,15 +45,11 @@ export default function MeetingList({ projectId }) {
                 ) : (
                     <div>
                         {meetings.map(meeting => (
-                            <MeetingCard
-                                key={meeting._id}
-                                meeting={meeting}
-                            />
+                            <MeetingCard key={meeting._id} meeting={meeting} />
                         ))}
                     </div>
                 )}
             </div>
-
         </div>
     );
 }

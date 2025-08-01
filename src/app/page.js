@@ -1,9 +1,8 @@
 import { getServerSession } from 'next-auth';
 import Link from 'next/link';
-import { options } from './api/auth/[...nextauth]/options';
 
 export default async function Home() {
-    const session = await getServerSession(options);
+    const session = await getServerSession();
     return (
         <main className="h-screen flex flex-col items-center justify-center bg-black text-center">
             <h1 className="text-4xl text-white font-bold mb-4">Welcome to Auth App</h1>

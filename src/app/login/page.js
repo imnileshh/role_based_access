@@ -46,7 +46,7 @@ export default function LoginUser() {
                 email: formdata.email,
                 password: formdata.password,
             });
-            console.log('login Result', result);
+            console.log('login Result from login page', result);
             if (result?.error) {
                 setGlobalError('Invalid credentials');
             } else {
