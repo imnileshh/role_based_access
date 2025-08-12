@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import useTaskStore from '../../store/taskStore';
 
-export default function CreateTaskModal({ projectId }) {
+export default function CreateTaskForm({ projectId }) {
     const { openTaskForm, setEditingTask, closeTaskForm, isTaskFormOpen, editingTaskData } =
         useTaskStore();
     const [form, setForm] = useState({
@@ -29,7 +29,7 @@ export default function CreateTaskModal({ projectId }) {
     }, [isTaskFormOpen]);
 
     useEffect(() => {
-        if (setEditingTask) {
+        if (editingTaskData) {
             let newDate = new Date(editingTaskData.dueDate).toISOString().split('T')[0];
 
             setForm({
@@ -39,7 +39,7 @@ export default function CreateTaskModal({ projectId }) {
                 assignedTo: editingTaskData.assignedTo.name,
             });
         }
-    }, [setEditingTask]);
+    }, [editingTaskData]);
 
     const handleChange = e => {
         setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));

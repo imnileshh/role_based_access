@@ -151,7 +151,15 @@ export default function TaskCard({ tasks }) {
                                                     }`}
                                                 >
                                                     {/* Status Badge */}
-                                                    <div className="absolute top-2 right-2 px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700 border border-gray-300">
+                                                    <div
+                                                        className={`absolute top-2 right-2 px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700 border-2 ${
+                                                            status === 'pending'
+                                                                ? 'border-yellow-500'
+                                                                : status === 'in progress'
+                                                                ? 'border-blue-500'
+                                                                : 'border-green-500'
+                                                        } `}
+                                                    >
                                                         {status}
                                                     </div>
 
@@ -188,24 +196,27 @@ export default function TaskCard({ tasks }) {
                                                         </p>
                                                     </div>
                                                     <div className="flex flex-row sm:flex-row flex-wrap gap-6">
-                                                        <button
-                                                            className="mt-3 bg-gray-200 text-white px-3 py-1 rounded "
-                                                            onClick={() =>
-                                                                handleDeleteTask(task._id)
-                                                            }
-                                                        >
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                x="0px"
-                                                                y="0px"
-                                                                width="24"
-                                                                height="24"
-                                                                viewBox="0 0 24 24"
-                                                                fill="red"
+                                                        {session?.user.name ===
+                                                            task.createdBy?.name && (
+                                                            <button
+                                                                className="mt-3 bg-gray-200 text-white px-3 py-1 rounded "
+                                                                onClick={() =>
+                                                                    handleDeleteTask(task._id)
+                                                                }
                                                             >
-                                                                <path d="M 10.806641 2 C 10.289641 2 9.7956875 2.2043125 9.4296875 2.5703125 L 9 3 L 4 3 A 1.0001 1.0001 0 1 0 4 5 L 20 5 A 1.0001 1.0001 0 1 0 20 3 L 15 3 L 14.570312 2.5703125 C 14.205312 2.2043125 13.710359 2 13.193359 2 L 10.806641 2 z M 4.3652344 7 L 5.8925781 20.263672 C 6.0245781 21.253672 6.877 22 7.875 22 L 16.123047 22 C 17.121047 22 17.974422 21.254859 18.107422 20.255859 L 19.634766 7 L 4.3652344 7 z"></path>
-                                                            </svg>
-                                                        </button>
+                                                                <svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    x="0px"
+                                                                    y="0px"
+                                                                    width="24"
+                                                                    height="24"
+                                                                    viewBox="0 0 24 24"
+                                                                    fill="red"
+                                                                >
+                                                                    <path d="M 10.806641 2 C 10.289641 2 9.7956875 2.2043125 9.4296875 2.5703125 L 9 3 L 4 3 A 1.0001 1.0001 0 1 0 4 5 L 20 5 A 1.0001 1.0001 0 1 0 20 3 L 15 3 L 14.570312 2.5703125 C 14.205312 2.2043125 13.710359 2 13.193359 2 L 10.806641 2 z M 4.3652344 7 L 5.8925781 20.263672 C 6.0245781 21.253672 6.877 22 7.875 22 L 16.123047 22 C 17.121047 22 17.974422 21.254859 18.107422 20.255859 L 19.634766 7 L 4.3652344 7 z"></path>
+                                                                </svg>
+                                                            </button>
+                                                        )}
                                                         {session?.user.name ===
                                                             task.createdBy?.name && (
                                                             <button
@@ -240,66 +251,5 @@ export default function TaskCard({ tasks }) {
                 ))}
             </div>
         </DragDropContext>
-        // <DragDropContext onDragEnd={handleDragDrop}>
-        //     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        //         {['pending', 'in progress', 'completed'].map(status => (
-        //             <Droppable key={status} droppableId={status}>
-        //                 {provided => (
-        //                     <div
-        //                         ref={provided.innerRef}
-        //                         {...provided.droppableProps}
-        //                         className="bg-white rounded p-4 shadow h-full min-h-[300px]"
-        //                     >
-        //                         <h3 className="text-xl font-bold capitalize mb-2">{status}</h3>
-
-        //                         {tasksByStatus[status].map((task, index) => (
-        //                             <Draggable key={task._id} draggableId={task._id} index={index}>
-        //                                 {provided => (
-        //                                     <div
-        //                                         ref={provided.innerRef}
-        //                                         {...provided.draggableProps}
-        //                                         {...provided.dragHandleProps}
-        //                                         className="border p-3 rounded bg-gray-100 mb-2"
-        //                                     >
-        //                                         <h4 className="font-semibold text-lg">
-        //                                             {task.title}
-        //                                         </h4>
-        //                                         <p className="text-sm">{task.description}</p>
-        //                                         <p className="text-xs text-gray-500">
-        //                                             Assigned to: {task.assignedTo?.name}
-        //                                         </p>
-        //                                     </div>
-        //                                 )}
-        //                             </Draggable>
-        //                         ))}
-        //                         {provided.placeholder}
-        //                     </div>
-        //                 )}
-        //             </Droppable>
-        //         ))}
-        //     </div>
-        // </DragDropContext>
-        // <div className="border p-3 rounded shadow bg-gray-50 lg:w-[70%]">
-        //     <h3 className="font-semibold text-lg">{task.title}</h3>
-        //     <p className="text-sm">{task.description}</p>
-        //     <p className="text-sm text-gray-600">Assigned to: {task.assignedTo?.name}</p>
-        //     <p className="text-sm text-gray-600">Created by: {task.createdBy?.name || 'Unknown'}</p>
-        //     <p className="text-sm text-gray-600">Project: {task.project?.name || 'Unknown'}</p>
-        //     <p className="text-sm mt-1">Status: {status}</p>
-        //     <div className="flex gap-2 mt-2">
-        //         {['pending', 'in progress', 'completed'].map(s => (
-        //             <button
-        //                 key={s}
-        //                 disabled={loading}
-        //                 onClick={() => updateStatus(s)}
-        //                 className={`px-2 py-1 rounded text-sm ${
-        //                     status === s ? 'bg-blue-600 text-white' : 'bg-gray-200'
-        //                 }`}
-        //             >
-        //                 {s}
-        //             </button>
-        //         ))}
-        //     </div>
-        // </div>
     );
 }

@@ -10,6 +10,11 @@ export async function middleware(req) {
             return NextResponse.redirect(new URL('/login', req.url));
         }
     }
+    if (pathname.startsWith('/leave')) {
+        if (!token) {
+            return NextResponse.redirect(new URL('/login', req.url));
+        }
+    }
     // Protect /admin route
     if (pathname.startsWith('/admin')) {
         if (!token) {
@@ -37,5 +42,5 @@ export async function middleware(req) {
 }
 
 export const config = {
-    matcher: ['/admin/:path*', '/superadmin/:path*', '/tasks'],
+    matcher: ['/admin/:path*', '/superadmin/:path*', '/tasks', '/leave'],
 };

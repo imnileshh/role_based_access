@@ -21,6 +21,10 @@ const LeaveSchema = new mongoose.Schema(
             type: Date,
             required: true,
         },
+        numberOfDays: {
+            type: Number,
+            required: true,
+        },
         reason: {
             type: String,
             required: true,
@@ -29,6 +33,9 @@ const LeaveSchema = new mongoose.Schema(
             type: String,
             enum: ['pending', 'approved', 'rejected'],
             default: 'pending',
+        },
+        application: {
+            type: String,
         },
         approvedBy: {
             type: mongoose.Schema.Types.ObjectId,

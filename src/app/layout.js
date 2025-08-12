@@ -1,5 +1,5 @@
 import AuthProvider from './components/authProvider';
-import Navbar from './components/navbar';
+import Sidebar from './components/navbar';
 import SessionManager from './components/sessionManager';
 import './globals.css';
 
@@ -14,8 +14,12 @@ export default function RootLayout({ children }) {
             <body>
                 <AuthProvider>
                     <SessionManager />
-                    <Navbar />
-                    <div>{children}</div>
+                    <div className="flex min-h-screen">
+                        <Sidebar />
+                        <main className="flex-1 bg-[#0e0e12] border-l-2 border-white p-6 overflow-y-auto">
+                            {children}
+                        </main>
+                    </div>
                 </AuthProvider>
             </body>
         </html>

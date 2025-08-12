@@ -20,7 +20,7 @@ export default function MeetingForm({ projectId, onClose }) {
             const localDatetime = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000)
                 .toISOString()
                 .slice(0, 16); // format: 'YYYY-MM-DDTHH:mm'
-            console.log(localDatetime);
+            // console.log(localDatetime);
             setForm({
                 title: editingMeeting.title,
                 description: editingMeeting.description,

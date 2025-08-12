@@ -9,7 +9,6 @@ import TaskList from '../taskComponents/TaskList';
 export default function ProjectDashboardPage() {
     const [projects, setProjects] = useState([]);
     const [selectedProjectId, setSelectedProjectId] = useState(null);
-    // const [openTaskForm, setOpenTaskForm] = useState(false);
     const [showAddForm, setShowAddForm] = useState(false);
     const [projectForm, setProjectForm] = useState({ name: '', description: '' });
     const [activeTab, setActiveTab] = useState('tasks'); // 'tasks' | 'meetings'
@@ -114,7 +113,7 @@ export default function ProjectDashboardPage() {
                 <CreateTaskForm
                     projectId={selectedProjectId}
                     isOpen={isTaskFormOpen}
-                    onClose={() => closeTaskForm()}
+                    // onClick={() => closeTaskForm()}
                 />
             )}
 

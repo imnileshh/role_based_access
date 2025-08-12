@@ -1,240 +1,95 @@
 'use client';
-
-import { Menu, X } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useState } from 'react';
-import LogoutButton from '../logout/page';
-import ButtonComponent from './button';
+import { useEffect, useState } from 'react';
+import { FaCalendarAlt, FaComments, FaProjectDiagram, FaTasks } from 'react-icons/fa';
 
-const NavLink = ({ href, children, className = '', onClick }) => {
-    const pathname = usePathname();
-    const isActive = pathname === href;
+const menuItems = [
+    { name: 'Dashboard', icon: <FaProjectDiagram />, href: '/home' },
+    { name: 'Project', icon: <FaProjectDiagram />, href: '/project' },
+    { name: 'My Task', icon: <FaTasks />, href: '/tasks' },
+    { name: 'Calendar', icon: <FaCalendarAlt />, href: '/calendar' },
+    { name: 'Leaves', icon: <FaCalendarAlt />, href: '/leave' },
+    { name: 'Conversation', icon: <FaComments />, href: '/conversation' },
+];
+
+export default function Sidebar() {
+    const [active, setActive] = useState('My Task');
+    const { data: session } = useSession();
+    const [employeeName, setEmployeeName] = useState('username');
+
+    useEffect(() => {
+        if (session) {
+            setEmployeeName(session.user.name);
+        }
+    }, [session]);
 
     return (
-        <Link
-            href={href}
-            className={`
-        relative px-3 py-2 transition-colors duration-200
-        ${isActive ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-600'}
-        ${className}
-      `}
-            onClick={onClick}
-            aria-current={isActive ? 'page' : undefined}
-        >
-            {children}
-            {isActive && (
-                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 rounded-full" />
-            )}
-        </Link>
-    );
-};
-
-const Navbar = () => {
-    const { data: session, status } = useSession();
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-    // Show loading skeleton while session is loading
-    if (status === 'loading') {
-        return (
-            <nav className="bg-white border-b border-gray-200">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
-                        <div className="w-24 h-6 bg-gray-200 rounded animate-pulse" />
-                        <div className="hidden md:flex space-x-8">
-                            <div className="w-12 h-4 bg-gray-200 rounded animate-pulse" />
-                            <div className="w-12 h-4 bg-gray-200 rounded animate-pulse" />
-                        </div>
-                        <div className="w-16 h-8 bg-gray-200 rounded animate-pulse" />
-                    </div>
+        <aside className="flex flex-col justify-between bg-[#0e0e12] text-white w-64 h-screen p-4 border-r border-gray-800">
+            <div>
+                <div className="flex items-center gap-2 mb-8 px-2">
+                    <span className="text-purple-500 text-2xl font-bold">⚡</span>
+                    <span className="text-lg font-semibold">Task Management</span>
                 </div>
-            </nav>
-        );
-    }
 
-    const toggleMobileMenu = () => {
-        setIsMobileMenuOpen(!isMobileMenuOpen);
-    };
-
-    const closeMobileMenu = () => {
-        setIsMobileMenuOpen(false);
-    };
-
-    const isAdmin = session?.user?.role === 'admin';
-    const isSuperAdmin = session?.user?.role === 'superadmin';
-
-    return (
-        <nav
-            className="bg-white border-b border-gray-200 sticky top-0 z-50"
-            role="navigation"
-            aria-label="Main navigation"
-        >
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center h-16">
-                    {/* Logo */}
-                    <div className="flex-shrink-0">
+                {/* Menu */}
+                <nav className="space-y-1">
+                    {menuItems.map(item => (
                         <Link
-                            href="/"
-                            className="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors duration-200"
-                            aria-label="MySite homepage"
+                            key={item.name}
+                            href={item.href}
+                            onClick={() => setActive(item.name)}
+                            className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                                active === item.name
+                                    ? 'bg-purple-600 text-white'
+                                    : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                            }`}
                         >
-                            MySite
+                            <span className="text-lg">{item.icon}</span>
+                            <span className="text-sm font-medium">{item.name}</span>
                         </Link>
-                    </div>
-
-                    {/* Desktop Navigation */}
-                    <div className="hidden md:flex items-center space-x-8">
-                        <NavLink href="/">Home</NavLink>
-                        <NavLink href="/about">About</NavLink>
-                        <NavLink href="/tasks">Tasks</NavLink>
-                        <NavLink href='/leave'>Leave</NavLink>
-                        {isAdmin && <NavLink href="/admin">Admin</NavLink>}
-                        {isSuperAdmin && <NavLink href="/superadmin">SuperAdmin</NavLink>}
-                    </div>
-
-                    {/* Desktop Auth Buttons */}
-                    <div className="hidden md:flex items-center space-x-4">
-                        {!session && (
-                            <Link
-                                href="/signup"
-                                className="hover:opacity-80 transition-opacity duration-200"
-                                aria-label="Sign up for an account"
-                            >
-                                <ButtonComponent buttonText="Sign Up" />
-                            </Link>
-                        )}
-                        {session ? (
-                            <div className="flex items-center space-x-4">
-                                <span className="text-sm text-gray-600 hidden lg:inline">
-                                    Welcome, {session.user?.name || session.user?.email}
-                                </span>
-                                <Link
-                                    href="/api/auth/signout?callbackUrl=/"
-                                    className="hover:opacity-80 transition-opacity duration-200"
-                                    aria-label="Sign out"
-                                >
-                                    <LogoutButton />
-                                </Link>
-                            </div>
-                        ) : (
-                            <Link
-                                href="/api/auth/signin?callbackUrl=/"
-                                className="hover:opacity-80 transition-opacity duration-200"
-                                aria-label="Sign in to your account"
-                            >
-                                <ButtonComponent buttonText="Sign In" />
-                            </Link>
-                        )}
-                    </div>
-
-                    {/* Mobile Menu Button */}
-                    <div className="md:hidden">
-                        <button
-                            type="button"
-                            className="p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
-                            onClick={toggleMobileMenu}
-                            aria-expanded={isMobileMenuOpen}
-                            aria-label="Toggle navigation menu"
-                        >
-                            {isMobileMenuOpen ? (
-                                <X className="h-6 w-6" />
-                            ) : (
-                                <Menu className="h-6 w-6" />
-                            )}
-                        </button>
-                    </div>
-                </div>
+                    ))}
+                </nav>
             </div>
 
-            {/* Mobile Menu */}
-            {isMobileMenuOpen && (
-                <div className="md:hidden border-t border-gray-200 bg-white">
-                    <div className="px-2 pt-2 pb-3 space-y-1">
-                        <NavLink
-                            href="/"
-                            className="block px-3 py-2 text-base font-medium"
-                            onClick={closeMobileMenu}
-                        >
-                            Home
-                        </NavLink>
-                        <NavLink
-                            href="/about"
-                            className="block px-3 py-2 text-base font-medium"
-                            onClick={closeMobileMenu}
-                        >
-                            About
-                        </NavLink>
-                        {isAdmin && (
-                            <NavLink
-                                href="/admin"
-                                className="block px-3 py-2 text-base font-medium"
-                                onClick={closeMobileMenu}
-                            >
-                                Admin
-                            </NavLink>
-                        )}
-                        {isSuperAdmin && (
-                            <NavLink
-                                href="/superadmin"
-                                className="block px-3 py-2 text-base font-medium"
-                                onClick={closeMobileMenu}
-                            >
-                                SuperAdmin
-                            </NavLink>
-                        )}
-                        <NavLink
-                            href="/tasks"
-                            className="block px-3 py-2 text-base font-medium"
-                            onClick={closeMobileMenu}
-                        >
-                            Tasks
-                        </NavLink>
-                    </div>
-
-                    {/* Mobile Auth Section */}
-                    <div className="border-t border-gray-200 px-2 pt-4 pb-3 space-y-3">
-                        {session ? (
-                            <div className="space-y-3">
-                                <div className="px-3 py-2">
-                                    <p className="text-sm text-gray-600">
-                                        Welcome, {session.user?.name || session.user?.email}
-                                    </p>
-                                </div>
-                                <Link
-                                    href="/api/auth/signout?callbackUrl=/"
-                                    className="block px-3 py-2"
-                                    onClick={closeMobileMenu}
-                                    aria-label="Sign out"
-                                >
-                                    <LogoutButton />
-                                </Link>
-                            </div>
-                        ) : (
-                            <div className="space-y-3">
-                                <Link
-                                    href="/signup"
-                                    className="block px-3 py-2"
-                                    onClick={closeMobileMenu}
-                                    aria-label="Sign up for an account"
-                                >
-                                    <ButtonComponent buttonText="Sign Up" />
-                                </Link>
-                                <Link
-                                    href="/api/auth/signin?callbackUrl=/"
-                                    className="block px-3 py-2"
-                                    onClick={closeMobileMenu}
-                                    aria-label="Sign in to your account"
-                                >
-                                    <ButtonComponent buttonText="Sign In" />
-                                </Link>
-                            </div>
-                        )}
-                    </div>
+            {/* User Info */}
+            <div className="flex items-center gap-3 mt-6 px-2">
+                <Image
+                    src="/145857007_307ce493-b254-4b2d-8ba4-d12c080d6651.jpg"
+                    alt="User Avatar"
+                    width={40}
+                    height={40}
+                    className="rounded-full"
+                />
+                <div className="flex-1">
+                    <p className="text-sm font-medium">{employeeName || 'Unknwon User'}</p>
                 </div>
-            )}
-        </nav>
+                {session ? (
+                    <div className="space-y-3">
+                        <Link
+                            href="/api/auth/signout?callbackUrl=/"
+                            className="block  bg-purple-600 text-white px-4 py-2 rounded-lg text-xs hover:bg-purple-500"
+                            aria-label="Sign out"
+                        >
+                            LogOut
+                        </Link>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        <Link
+                            href="/signup"
+                            className="block   bg-purple-600 text-white px-4 py-2 rounded-lg text-xs hover:bg-purple-500"
+                            aria-label="Sign up for an account"
+                        ></Link>
+                        <Link
+                            href="/api/auth/signin?callbackUrl=/"
+                            className="block   bg-purple-600 text-white px-4 py-2 rounded-lg text-xs hover:bg-purple-500"
+                            aria-label="Sign in to your account"
+                        ></Link>
+                    </div>
+                )}
+            </div>
+        </aside>
     );
-};
-
-export default Navbar;
+}

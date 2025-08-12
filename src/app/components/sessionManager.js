@@ -14,7 +14,7 @@ export default function SessionManager() {
             console.log('Session expired. Logging out...');
             router.replace('/login');
         }
-    }, [status, pathname]);
+    }, [status]);
 
     return null;
 }
