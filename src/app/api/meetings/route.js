@@ -36,7 +36,7 @@ export async function POST(req) {
 
     const participantsId = await Promise.all(
         participants.map(async participant => {
-            const user = await User.findOne({ name: participant });
+            const user = await User.findOne({ name: participant.value });
             return user?._id;
         })
     );

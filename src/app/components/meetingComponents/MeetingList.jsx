@@ -34,16 +34,18 @@ export default function MeetingList({ projectId }) {
     }, [userName, projectId]);
 
     return (
-        <div className="flex flex-col lg:flex-row lg:gap-6  ">
-            <div className="w-full  bg-white p-4 rounded shadow-lg">
-                <h2 className="text-3xl font-bold text-gray-800 mb-4 text-center">📝 Meetings</h2>
+        <div className="flex flex-col lg:flex-row lg:gap-6 p-2 sm:p-4">
+            <div className="w-full bg-[#0e0e12] p-4 rounded shadow-lg border border-gray-700">
+                <h2 className="text-2xl sm:text-3xl font-bold text-purple-400 mb-4 text-center">
+                    📝 Meetings
+                </h2>
 
                 {loading ? (
-                    <p className="text-blue-600 font-semibold">Loading Meetings...</p>
+                    <p className="text-blue-400 font-semibold">Loading Meetings...</p>
                 ) : meetings.length === 0 ? (
-                    <p className="text-red-500 font-semibold">No Meetings assigned to you.</p>
+                    <p className="text-red-400 font-semibold">No Meetings assigned to you.</p>
                 ) : (
-                    <div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {meetings.map(meeting => (
                             <MeetingCard key={meeting._id} meeting={meeting} />
                         ))}

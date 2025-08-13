@@ -53,23 +53,22 @@ export default function TaskList({ projectId }) {
     }, [userName, projectId]);
 
     return (
-        <div className="flex flex-col lg:flex-row lg:gap-6  ">
-            <div className="w-full  bg-white p-4 rounded shadow-lg">
-                <h2 className="text-3xl font-bold text-gray-800 mb-4 text-center">📝 Tasks</h2>
+        <div className="flex flex-col lg:flex-row lg:gap-6 w-full">
+            <div className="w-full bg-[#0e0e12] p-4 rounded shadow-lg">
+                <h2 className="text-2xl sm:text-3xl font-bold text-purple-400 mb-4 text-center">
+                    📝 Tasks
+                </h2>
 
                 {loading ? (
-                    <p className="text-blue-600 font-semibold">Loading tasks...</p>
+                    <p className="text-blue-400 font-semibold text-center">Loading tasks...</p>
                 ) : tasks.length === 0 ? (
-                    <p className="text-red-500 font-semibold">No tasks assigned to you.</p>
+                    <p className="text-red-400 font-semibold text-center">
+                        No tasks assigned to you.
+                    </p>
                 ) : (
-                    <div>
+                    <div className="flex flex-col gap-4">
                         <TaskCard tasks={tasks} />
                     </div>
-                    // <div className="flex flex-wrap gap-4">
-                    //     {tasks.map(task => (
-                    //         <TaskCard key={task._id} task={task} />
-                    //     ))}
-                    // </div>
                 )}
             </div>
 

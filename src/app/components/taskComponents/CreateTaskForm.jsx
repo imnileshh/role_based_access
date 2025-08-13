@@ -80,10 +80,10 @@ export default function CreateTaskForm({ projectId }) {
 
     return (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded shadow-lg w-full max-w-lg relative">
+            <div className="bg-white p-6 rounded shadow-lg w-full max-w-lg relative text-black">
                 <h2 className="text-lg font-semibold mb-4">Create Task</h2>
                 {error && <p className="text-red-600">{error}</p>}
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4 ">
                     <div>
                         <label htmlFor="title">Title</label>
                         <input

@@ -7,7 +7,6 @@ export default function LeaveTabs({ leaves }) {
     const filteredLeaves = leaves.filter(l => l.status === tab);
 
     const [name, setName] = useState('');
-    
 
     useEffect(() => {
         const fetchLeaves = async () => {
@@ -17,19 +16,23 @@ export default function LeaveTabs({ leaves }) {
 
     return (
         <div>
-            <div className="flex space-x-4 mb-4">
+            <div className="flex space-x-2 mb-4 overflow-x-auto scrollbar-hide">
                 {['pending', 'approved', 'rejected'].map(status => (
                     <button
                         key={status}
                         onClick={() => setTab(status)}
-                        className={`px-4 py-2 rounded ${
-                            tab === status ? 'bg-blue-600 text-white' : 'bg-gray-200'
-                        }`}
+                        className={`px-4 py-2 rounded-lg transition-colors duration-200 whitespace-nowrap
+                    ${
+                        tab === status
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                    }`}
                     >
                         {status.charAt(0).toUpperCase() + status.slice(1)}
                     </button>
                 ))}
             </div>
+
             <div className="grid gap-4">
                 {filteredLeaves.length > 0 ? (
                     filteredLeaves.map(leave => <LeaveCard key={leave._id} leave={leave} />)

@@ -104,7 +104,7 @@ export default function MeetingForm({ projectId, onClose }) {
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
             <form
                 onSubmit={handleSubmit}
-                className="bg-white w-full max-w-md p-6 rounded shadow-lg space-y-4"
+                className="bg-white text-black w-full max-w-md p-6 rounded shadow-lg space-y-4"
             >
                 <h2 className="text-xl font-bold text-gray-800">
                     📅 {editingMeeting ? 'Editing Meeting' : 'Schedule Meeting'}
