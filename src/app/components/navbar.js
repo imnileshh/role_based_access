@@ -37,8 +37,9 @@ export default function Sidebar({ isOpen = false, setIsOpen = () => {} }) {
         <>
             {/* Sidebar — slides in on mobile, static on md+ */}
             <aside
-                className={`fixed top-0 left-0 min-h-screen w-64 bg-[#0e0e12] text-white p-4 border-r border-gray-600 z-50 transform transition-transform duration-300
-          ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static lg:w-64`}
+                className={`fixed top-0 left-0 min-h-screen w-64 bg-[#0e0e12] text-white p-4 border-r border-gray-600 z-50 transform transition-transform duration-300${
+                    isOpen ? 'translate-x-0' : '-translate-x-full'
+                } lg:translate-x-0 lg:static lg:w-64`}
             >
                 {/* Mobile Close Button */}
                 <div className="lg:hidden flex items-center justify-between mb-4">
